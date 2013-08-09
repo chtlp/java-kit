@@ -8,6 +8,10 @@ public interface PriorityMap<K, V extends Comparable<V>> extends Map<K, V> {
 	 */
 	public K peakKey();
 	
+	/**
+	 * retrieve and remove the first entry
+	 */
+	public Entry<K, V> poll();
 	
 	/**
 	 * update the value corresponding to an existing key

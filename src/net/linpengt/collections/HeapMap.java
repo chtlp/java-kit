@@ -1,5 +1,6 @@
 package net.linpengt.collections;
 
+import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -214,5 +215,16 @@ public class HeapMap<K, V extends Comparable<V>> implements PriorityMap<K, V>{
 		sb.append(String.format("\tkey2pos: %s\n", key2pos));
 		sb.append(String.format("\theap:    %s\n", heap));
 		return sb.toString();
+	}
+
+	@Override
+	public Map.Entry<K, V> poll() {
+		if (isEmpty())
+			return null;
+		K key = key2pos.getKey(0);
+		V value = heap.get(0);
+		remove(key);
+		
+		return new AbstractMap.SimpleEntry<K, V>(key, value);
 	}
 }
