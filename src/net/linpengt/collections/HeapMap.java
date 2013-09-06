@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -38,6 +39,7 @@ public class HeapMap<K, V extends Comparable<V>> implements PriorityMap<K, V>{
 		return entries.containsKey(key);
 	}
 
+	// this operation is O(N)
 	@Override
 	public boolean containsValue(Object value) {
 		return entries.containsValue(value);
@@ -167,15 +169,20 @@ public class HeapMap<K, V extends Comparable<V>> implements PriorityMap<K, V>{
 
 	/**
 	 * Remove one element by first swapping it with the last element of the heap,
-	 * remove it, then bubble down the original last element
+	 * remove it, then bubble up/down the original last element
 	 * @param pos
 	 */
 	protected void heapRemove(int pos) {
 		assert pos < heap.size();
+		if (pos == heap.size() - 1) {
+			heap.remove(pos);
+			return;
+		}
+			
 		int last = heap.size() - 1;
 		swap(pos, last);
 		heap.remove(last);
-		bubbleDown(pos);
+		bubbleUpDown(pos);
 	}
 	
 	/**
@@ -211,10 +218,37 @@ public class HeapMap<K, V extends Comparable<V>> implements PriorityMap<K, V>{
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 		sb.append(String.format("HeapMap: size=%d\n", size()));
-		sb.append(String.format("\tentries: %s\n", entries));
-		sb.append(String.format("\tkey2pos: %s\n", key2pos));
-		sb.append(String.format("\theap:    %s\n", heap));
+		sb.append(String.format("\tentries: %s\n", trimMap(entries)));
+		sb.append(String.format("\tkey2pos: %s\n", trimBidiMap(key2pos)));
+		sb.append(String.format("\theap:    %s\n", trimList(heap)));
 		return sb.toString();
+	}
+	
+	static final int MAX_ENTRIES = 20;
+	
+	private static<V> List<V> trimList(List<V> list) {
+		return list.subList(0, Math.min(MAX_ENTRIES, list.size()));
+	}
+	private static<K, V> Map<K, V> trimMap(Map<K, V> map) {
+		Map<K, V> res = new HashMap<K, V>();
+		int i = 0;
+		for (Map.Entry<K, V> ent : map.entrySet()) {
+			res.put(ent.getKey(), ent.getValue());
+			if (++i >= MAX_ENTRIES)
+				break;
+		}
+		return res;
+	}
+
+	private static<K, V> Map<K, V> trimBidiMap(BidiMap<K, V> map) {
+		Map<K, V> res = new HashMap<K, V>();
+		int i = 0;
+		for (Map.Entry<K, V> ent : map.entrySet()) {
+			res.put(ent.getKey(), ent.getValue());
+			if (++i >= MAX_ENTRIES)
+				break;
+		}
+		return res;
 	}
 
 	@Override
